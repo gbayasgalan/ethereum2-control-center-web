@@ -1,5 +1,6 @@
 <template>
-  <div>
+  <div class="text-left">
+    <h3>Verify &amp; Install</h3>
     <span v-if="!running">
       Please check the entered information and start the installation
     </span>
@@ -81,7 +82,9 @@
 
         <div v-if="success === true">
           <div class="alert alert-success" role="alert">
-            Installation Successful! You are good to go!
+            <h4 class="alert-heading">Installation Successful! You are good to go!</h4>
+
+            <b-button variant="primary" block size="lg" href="http://localhost:8081/public/control-center">Open Control Center</b-button>
           </div>
         </div>
         <div v-if="success === false">
@@ -122,7 +125,7 @@ export default {
   },
   data() {
     return {
-      max: 100,
+      max: 62,
     };
   },
   methods: {},
