@@ -77,6 +77,8 @@
       <updates-overview
         :ethereum2config="this.ethereum2config"
         :processChange="processChange"
+        :refreshConfig="refreshConfig"
+        :lockControlCenter="lockControlCenter"
       />
     </div>
     <div v-if="this.content === 'importValidator'">
@@ -195,6 +197,15 @@
     </b-modal>
 
     <b-overlay :show="processStatus.running" rounded="sm" no-wrap />
+
+    <b-overlay :show="locked" no-wrap>
+      <template #overlay>
+        <div class="text-center p-4 bg-primary text-light rounded">
+          <b-icon icon="arrow-repeat" font-scale="4"></b-icon>
+          <div class="mb-3">Please close this tab now &amp; restart your launcher to update the control center as well!</div>
+        </div>
+      </template>
+    </b-overlay>
   </div>
 </template>
 
@@ -242,6 +253,7 @@ export default {
         progress: 0,
         success: undefined,
       },
+      locked: false,
     };
   },
   created() {
@@ -291,6 +303,10 @@ export default {
       } else if (item.idx == 0) {
         window.location.href = "mailto:stereum@stereum.net";
       }
+    },
+
+    lockControlCenter: function() {
+      this.locked = true;
     },
 
     refreshConfig: function(callback) {
@@ -361,9 +377,6 @@ export default {
               this.processStatus.success = false;
             }
             if (response.data.status == 0) {
-              this.$toasted.success("date read successful!", {
-                duration: 5000,
-              });
               this.processStatus.progress = 100;
               this.processStatus.success = true;
             }
@@ -391,7 +404,7 @@ export default {
       }
     },
 
-    processChange: function (control, data) {
+    processChange: function (control, maxTasks, data, ...callbacks) {
       if (this.processStatus.running === false) {
         this.processStatus.running = true;
         this.processStatus.progress = 0;
@@ -410,7 +423,11 @@ export default {
           axios.get("/api/setup/status").then((response) => {
             //console.log(response.data);
             this.processStatus.logs = response.data;
-            this.processStatus.progress = response.data.tasks.length;
+            this.processStatus.progress = response.data.tasks.length / maxTasks * 100;
+
+            if (this.processStatus.done) {
+              callbacks.forEach(cb => cb.apply());
+            }
           });
         };
         let logWatchHandle = setInterval(fetchStatus, 1500);

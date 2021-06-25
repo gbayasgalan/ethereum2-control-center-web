@@ -18,6 +18,7 @@
               @click="moveItemUp(row)"
               variant="success"
               class="mb-2 mr-sm-2 mb-sm-0"
+              :disabled="0 == items.indexOf(row.item)"
             >
               <b-icon icon="caret-up" aria-hidden="true"></b-icon>
             </b-button>
@@ -26,6 +27,7 @@
               @click="moveItemDown(row)"
               variant="success"
               class="mb-2 mr-sm-2 mb-sm-0"
+              :disabled="items.length - 1 == items.indexOf(row.item)"
             >
               <b-icon icon="caret-down" aria-hidden="true"></b-icon>
             </b-button>
@@ -42,6 +44,7 @@
             v-model="newUrl"
             placeholder="Enter new URL for Ethereum 1 node (e. g. infura.io)"
             class="mb-2 mr-sm-2 mb-sm-0 w-50"
+            :state="validation"
           ></b-form-input>
           <b-button
             size="sm"
@@ -89,6 +92,12 @@ export default {
         "https://" +
         eth1network +
         ".infura.io:443/v3/put-your-infura-id-here";
+    },
+  },
+  computed: {
+    validation() {
+      let regex = new RegExp("https?:\\/\\/(www\\.)?[-a-zA-Z0-9@:%._\\+~#=]{1,256}[\\.[a-zA-Z0-9()]{1,6}]{0,1}\\b([-a-zA-Z0-9()@:%_\\\\+.~#?&\\/\\/=]*)");
+      return regex.test(this.newUrl);
     },
   },
   methods: {
